@@ -17,7 +17,8 @@ Simple parking system with esp32 microcontroller that's have a lot of features l
 3. Micro servo(SG90) x2
 4. Small breadBoard
 
-## Block Diagram
+## Simulation
+online simulation with [circuito.io](https://www.circuito.io/static/reply/index.html?solutionId=64893421c3831e002ef5cbb2&solutionPath=storage.circuito.io)
 
 ![Block-Diagram](Block.png)
 
