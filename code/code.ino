@@ -7,13 +7,15 @@
 #include <WebServer.h>  // standard library
 
 //input output define
-#define ULTRA_ONE_TRIG_PIN 23 // ESP32 pin GIOP23 connected to Ultrasonic Sensor's TRIG pin
-#define ULTRA_ONE_ECHO_PIN 22 // ESP32 pin GIOP22 connected to Ultrasonic Sensor's ECHO pin
+
+#define ULTRA_ONE_TRIG_PIN 33 // ESP32 pin GIOP23 connected to Ultrasonic Sensor's TRIG pin
+#define ULTRA_ONE_ECHO_PIN 25 // ESP32 pin GIOP22 connected to Ultrasonic Sensor's ECHO pin
 #define ULTRA_TWO_TRIG_PIN 17
 #define ULTRA_TWO_ECHO_PIN 16
 #define PIN_LED 2     //On board LED
 #define PIN_OUTPUT 26 // connected to nothing but an example of a digital write from the web page
-
+#define ENTRY_SERVO_PIN  32
+#define EXIT_SERVO_PIN  19
 
 #define USE_INTRANET
 #define AP_SSID "Parking-System"
@@ -21,8 +23,7 @@
 
 
 int servoPosi = 0;
-int EnteryservoPin = 18;
-int ExitservoPin = 19;
+
 
 bool LED0 = false, SomeOutput = false;
 int entry_gate_distance = 0;
@@ -76,10 +77,10 @@ void setup() {
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
   entry_gate_servo.setPeriodHertz(50);    // standard 50 hz servo
-  entry_gate_servo.attach(EnteryservoPin, 500, 2400); // attaches the servo on pin 18 to the servo object
+  entry_gate_servo.attach(ENTRY_SERVO_PIN, 500, 2400); // attaches the servo on pin 18 to the servo object
 
   exit_gate_servo.setPeriodHertz(50);    // standard 50 hz servo
-  exit_gate_servo.attach(ExitservoPin, 500, 2400); // attaches the servo on pin 18 to the servo object
+  exit_gate_servo.attach(EXIT_SERVO_PIN, 500, 2400); // attaches the servo on pin 18 to the servo object
 
   // begin serial port
   Serial.begin (9600);
@@ -135,14 +136,12 @@ void loop() {
   // in my example here every 50 ms, i measure some analog sensor data (my finger dragging over the pins
   // and process accordingly
   // analog input can be from temperature sensors, light sensors, digital pin sensors, etc.
-  if ((millis() - SensorUpdate) >= 50) {
+
     //Serial.println("Reading Sensors");
     SensorUpdate = millis();
-    Serial.print("SensorUpdate:");
-    Serial.println(SensorUpdate);
     exit_gate_distance = get_distance(ULTRA_TWO_TRIG_PIN, ULTRA_TWO_ECHO_PIN);
     entry_gate_distance = get_distance(ULTRA_ONE_TRIG_PIN, ULTRA_ONE_ECHO_PIN);
-  }
+ 
   if (entry_gate_distance <= 10 && cars_num < 10 && !entry_open) {
     cars_num++;
     entry_open_time = millis();
@@ -159,6 +158,9 @@ void loop() {
 
   Serial.print("Cars Number: ");
   Serial.println(cars_num);
+  Serial.print("Cars Number: ");
+  Serial.println(exit_gate_distance);
+
 
   //Entry Gate Moving control
   //check if the gate in open state to open it gradully
@@ -182,7 +184,6 @@ void loop() {
       entry_moving_time = millis();
     }
   }
-
   //Exit Gate Moving control
  //check if the gate in open state to open it gradully
   if (exit_open
