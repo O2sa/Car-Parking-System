@@ -1,0 +1,174 @@
+{
+  "main": {
+    "id": "81e60287c8107e1f",
+    "type": "split",
+    "children": [
+      {
+        "id": "2fd43fb7a2c52e65",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "885005b0615a9e8f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "preview",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "173016e05179d2b3",
+    "type": "split",
+    "children": [
+      {
+        "id": "e22255aec77704a7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fe81a0495ab39705",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "da10093a10b7d908",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "08260fd49bdbd7bd",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 433.5
+  },
+  "right": {
+    "id": "328bf3f762cf0896",
+    "type": "split",
+    "children": [
+      {
+        "id": "4fe620654398f1d6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1ed7a5e9a53a0eaf",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "README.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "394be6842ee4c58e",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "README.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "1d1c50ff4ef4e8cc",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "2cabdcd5fd691bfd",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "README.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "885005b0615a9e8f",
+  "lastOpenFiles": [
+    "block.png",
+    "README.md",
+    "Circuit Design App for Makers- circuito.io.html",
+    "Circuit Design App for Makers- circuito.io_files/ykaggtuuezufipl2togh.png",
+    "Circuit Design App for Makers- circuito.io_files/x-da8d2cc51c4426cc3ea5a20273576343cfa3a717812fa7182499685b95.svg",
+    "Circuit Design App for Makers- circuito.io_files/wz8uia1gry3sorjj4hlu.svg",
+    "Circuit Design App for Makers- circuito.io_files/wyympsgco5lb61n3k6hy.svg",
+    "Circuit Design App for Makers- circuito.io_files/zoom-out.svg",
+    "Circuit Design App for Makers- circuito.io_files/ypa28w8muxbisb4xp3di.png",
+    "Circuit Design App for Makers- circuito.io_files/jrtjfzlfcq4z9js5oi7k.png",
+    "Circuit Design App for Makers- circuito.io_files/cvenimkvwxpfmlsozjpd.png",
+    "Circuit Design App for Makers- circuito.io_files/dbhe5vbq7epmevqu4taf.png",
+    "block.png.part",
+    "Circuit Design App for Makers- circuito.io_files/ct.html",
+    "Circuit Design App for Makers- circuito.io_files/bundle.min.js",
+    "Circuit Design App for Makers- circuito.io_files/rewriteframes.min.js",
+    "Circuit Design App for Makers- circuito.io_files/widget-f7bedc88f5d7f36c2240bbbfdd34b1550a86336a959c1e8553e56.css",
+    "Circuit Design App for Makers- circuito.io_files/css_005.css",
+    "Circuit Design App for Makers- circuito.io_files/css_004.css",
+    "Circuit Design App for Makers- circuito.io_files/css_003.css",
+    "Circuit Design App for Makers- circuito.io_files/css_002.css",
+    "Block-Diagram.png.md"
+  ]
+}
