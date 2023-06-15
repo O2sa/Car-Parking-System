@@ -27,18 +27,18 @@ online simulation with [circuito.io](https://www.circuito.io/static/reply/index.
 
 Components Pins | ESP Pins
 ------------  | ------------
-Ultrasonic one Trig pin | P23
-Ultrasonic one Echo pin | P22
+Ultrasonic one Trig pin | P33
+Ultrasonic one Echo pin | P25
 Ultrasonic one VCC pin | 5v
 Ultrasonic one GND pin | gnd
 Ultrasonic two Trig pin | 17
 Ultrasonic two Echo pin | 16
 Ultrasonic two VCC pin | 5v
 Ultrasonic two GND pin | gnd
-First servo input pin | 19
+First servo input pin | 32
 First servo VCC pin | 5v
 First servo GND pin | gnd
-Second servo input pin | 18
+Second servo input pin | 19
 Second servo VCC pin | 5v
 Second servo GND pin | gnd
 

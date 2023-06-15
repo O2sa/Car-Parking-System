@@ -2,47 +2,49 @@
 #include <ESP32Servo.h>
 #include "webpage.h"
 #include "server.h"
+#include <WiFi.h>       
+#include <WebServer.h>  
 
-#include <WiFi.h>       // standard library
-#include <WebServer.h>  // standard library
-
-//input output define
-
+//input output pins
 #define ULTRA_ONE_TRIG_PIN 33 // ESP32 pin GIOP23 connected to Ultrasonic Sensor's TRIG pin
 #define ULTRA_ONE_ECHO_PIN 25 // ESP32 pin GIOP22 connected to Ultrasonic Sensor's ECHO pin
 #define ULTRA_TWO_TRIG_PIN 17
 #define ULTRA_TWO_ECHO_PIN 16
 #define PIN_LED 2     //On board LED
-#define PIN_OUTPUT 26 // connected to nothing but an example of a digital write from the web page
+#define PIN_OUTPUT 26
 #define ENTRY_SERVO_PIN  32
 #define EXIT_SERVO_PIN  19
 
+//wifi variables
 #define USE_INTRANET
 #define AP_SSID "Parking-System"
 #define AP_PASS "pass12345"
+// variable for the IP reported when you connect to your homes intranet (during debug mode)
+IPAddress Actual_IP;
+// definitions of your desired intranet created by the ESP32
+IPAddress PageIP(192, 168, 1, 1);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 255, 0);
+IPAddress ip;
 
 
-int servoPosi = 0;
 
 
-bool LED0 = false, SomeOutput = false;
+bool status_led = true, system_status = true;
 int entry_gate_distance = 0;
 int exit_gate_distance = 0;
-
 uint32_t SensorUpdate = 0;
-
 int cars_num = 0;
 
-
+//servos variables
 Servo entry_gate_servo;  // create servo object to control a servo
 Servo exit_gate_servo;  // create servo object to control a servo
 bool entry_open = false;
 bool exit_open = false;
-
-
 int entry_servo_pos = 0;
 int exit_servo_pos = 0;
 
+// time variables
 int moveTime = 10;
 unsigned long int entry_open_time = 0;
 unsigned long int entry_moving_time = 0;
@@ -52,22 +54,13 @@ unsigned long int exit_moving_time = 0;
 
 // the XML array size needs to be bigger that your maximum expected size. 2048 is way too big for this example
 char XML[2048];
-
 // just some buffer holder for char operations
 char buf[32];
 
-// variable for the IP reported when you connect to your homes intranet (during debug mode)
-IPAddress Actual_IP;
-
-// definitions of your desired intranet created by the ESP32
-IPAddress PageIP(192, 168, 1, 1);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress ip;
 
 
 
-// gotta create a server
+// create a server
 WebServer server(80);
 
 void setup() {
@@ -87,8 +80,8 @@ void setup() {
   pinMode(PIN_LED, OUTPUT);
 
   // turn off led
-  LED0 = false;
-  digitalWrite(PIN_LED, LED0);
+//  status_led = false;
+  digitalWrite(PIN_LED, status_led);
 
   // configure the trigger pin to output mode
   pinMode(ULTRA_ONE_TRIG_PIN, OUTPUT);
@@ -102,9 +95,8 @@ void setup() {
   disableCore0WDT();
 
 
-  // just an update to progress
+  // setup the server
     Serial.println("starting server");
-  //  // if you have this #define USE_INTRANET,  you will connect to your home intranet, again makes debugging easier
     WiFi.softAP(AP_SSID, AP_PASS);
     delay(100);
     WiFi.softAPConfig(PageIP, gateway, subnet);
@@ -115,8 +107,7 @@ void setup() {
     printWifiStatus();
 
 
-  // these calls will handle data coming back from your web page
-  // this one is a page request, upon ESP getting / string the web page will be sent
+  //handle server requests
     server.on("/", SendWebsite);
     server.on("/xml", SendXML);
 
@@ -124,7 +115,6 @@ void setup() {
   // same notion for the following .on calls
   // add as many as you need to process incoming strings from your web page
   // as you can imagine you will need to code some javascript in your web page to send such strings
-  // this process will be documented in the SuperMon.h web page code
     server.on("/UPDATE_SLIDER", UpdateSlider);
     server.on("/BUTTON_0", ProcessButton_0);
     server.on("/BUTTON_1", ProcessButton_1);
@@ -133,10 +123,10 @@ void setup() {
 }
 
 void loop() {
-  // in my example here every 50 ms, i measure some analog sensor data (my finger dragging over the pins
-  // and process accordingly
-  // analog input can be from temperature sensors, light sensors, digital pin sensors, etc.
 
+if(system_status)
+{
+  
     //Serial.println("Reading Sensors");
     SensorUpdate = millis();
     exit_gate_distance = get_distance(ULTRA_TWO_TRIG_PIN, ULTRA_TWO_ECHO_PIN);
@@ -158,8 +148,7 @@ void loop() {
 
   Serial.print("Cars Number: ");
   Serial.println(cars_num);
-  Serial.print("Cars Number: ");
-  Serial.println(exit_gate_distance);
+ 
 
 
   //Entry Gate Moving control
@@ -206,7 +195,7 @@ void loop() {
       exit_moving_time = millis();
     }
   }
-
+}
     server.handleClient();
 }
 
@@ -227,7 +216,7 @@ void UpdateSlider() {
 
   // now send it back
   strcpy(buf, "");
-  sprintf(buf, "%d", servoPosi);
+  sprintf(buf, "%d", 20);
   sprintf(buf, buf);
   server.send(200, "text/plain", buf); //Send web page
 
@@ -237,9 +226,10 @@ void UpdateSlider() {
 // now process button_0 press from the web site. Typical applications are the used on the web client can
 // turn on / off a light, a fan, disable something etc
 void ProcessButton_0() {
-  LED0 = !LED0;
-  digitalWrite(PIN_LED, LED0);
-  Serial.print("Button 0 "); Serial.println(LED0);
+  system_status=!system_status;
+  status_led = !status_led;
+  digitalWrite(PIN_LED, status_led);
+  Serial.print("Button 0 "); Serial.println(status_led);
   server.send(200, "text/plain", ""); //Send web page
 
 }
@@ -247,27 +237,19 @@ void ProcessButton_0() {
 void ProcessButton_1() {
   // just a simple way to toggle a LED on/off. Much better ways to do this
   Serial.println("Button 1 press");
-  SomeOutput = !SomeOutput;
 
-  //  digitalWrite(PIN_OUTPUT, SomeOutput);
-  Serial.print("Button 1 "); Serial.println(LED0);
+//     server.send(200, "text/plain", ""); //Send web page
 
-  // regardless if you want to send stuff back to client or not
-  // you must have the send line--as it keeps the page running
-  // if you don't want feedback from the MCU--or send all data via XML use this method
-  // sending feeback
-  server.send(200, "text/plain", ""); //Send web page
-
-  // if you want to send feed back immediataly
-  // note you must have proper code in the java script to read this data stream
-  /*
-    if (some_process) {
-    server.send(200, "text/plain", "SUCCESS"); //Send web page
+    if (!entry_open&&!exit_open) {
+      cars_num=0;
+   Serial.println("Cars number reset.");
+    server.send(200, "text/plain", "true"); //Send web page
+    
     }
-    else {
-    server.send(200, "text/plain", "FAIL"); //Send web page
+    else{
+    server.send(200, "text/plain", "false"); //Send web page
     }
-  */
+  
 }
 
 
@@ -290,34 +272,33 @@ void SendXML() {
   // send distance_cm
   sprintf(buf, "<B0>%d</B0>\n", cars_num);
   strcat(XML, buf);
-  // send Volts0
-  //  sprintf(buf, "<V0>%d</V0>\n", cars_num);
-  //  strcat(XML, buf);
-  // send bits1
+  
   sprintf(buf, "<B1>%d</B1>\n", entry_gate_distance);
   strcat(XML, buf);
-  //  // send Volts1
-  //  sprintf(buf, "<V1>%d</V1>\n", entry_gate_distance);
-  //  strcat(XML, buf);
+
+
+  sprintf(buf, "<B2>%d</B2>\n", exit_gate_distance);
+  strcat(XML, buf);
+
   // show led0 status
-  if (LED0) {
+  if (status_led) {
     strcat(XML, "<LED>1</LED>\n");
   }
   else {
     strcat(XML, "<LED>0</LED>\n");
   }
-   if (SomeOutput) {
-      strcat(XML, "<SWITCH>1</SWITCH>\n");
-    }
-    else {
-      strcat(XML, "<SWITCH>0</SWITCH>\n");
-    }
+//    if (!entry_open&&!exit_open) {
+//      strcat(XML, "<SWITCH>true</SWITCH>\n");
+//    }
+//    else {
+//      strcat(XML, "<SWITCH>false</SWITCH>\n");
+//    }
 
   strcat(XML, "</Data>\n");
   // wanna see what the XML code looks like?
   // actually print it to the serial monitor and use some text editor to get the size
   // then pad and adjust char XML[2048]; above
-  Serial.println(XML);
+//  Serial.println(XML);
 
   // you may have to play with this value, big pages need more porcessing time, and hence
   // a longer timeout that 200 ms

@@ -201,10 +201,20 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
                 </tr>
                 <tr>
                     <td>
-                        <div class="bodytext">Sernsor Distance</div>
+                        <div class="bodytext">Entry Sernsor Distance</div>
                     </td>
                     <td>
                         <div class="tabledata" id="b1"></div>
+                    </td>
+                    
+                </tr>
+
+                 <tr>
+                    <td>
+                        <div class="bodytext">Exit Sernsor Distance</div>
+                    </td>
+                    <td>
+                        <div class="tabledata" id="b2"></div>
                     </td>
                     
                 </tr>
@@ -214,20 +224,17 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <br>
         <div class="category"> System Control:</div>
         <br>
-        <div class="bodytext"> System Status</div>
+        <div class="bodytext"> System Status:</div>
         <button type="button" class="btn" id="btn0" onclick="ButtonPress0()">Toggle</button>
         </div>
         <br>
-        <div class="bodytext">Open/Close Gate</div>
-        <button type="button" class="btn" id="btn1" onclick="ButtonPress1()">Toggle</button>
+        <div class="bodytext">Reset Cars Number:</div>
+        <button type="button" class="btn" id="btn1" onclick="ButtonPress1()">Reset</button>
+        <p id="reset-noti" ></p>
         </div>
         <br>
         <br>
-        <div class="bodytext">Gate Control ( <span id="fanrpm"></span>&#176)</div>
-
-        <br>
-        <input type="range" class="fanrpmslider" min="15" max="90" value="0" width="0%"
-            oninput="UpdateSlider(this.value)" />
+    
         <br>
         <br>
     </main>
@@ -274,18 +281,28 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         xhttp.open("PUT", "BUTTON_0", false);
         xhttp.send();
     }
-    // function to handle button press from HTML code above
-    // and send a processing string back to server
-    // this processing string is use in the .on method
+    
     function ButtonPress1() {
         var xhttp = new XMLHttpRequest();
-        /*
+       
         xhttp.onreadystatechange = function() {
+          console.log(this.responseText);
+          
           if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("button1").innerHTML = this.responseText;
-          }
-        }
-        */
+              document.getElementById("reset-noti").innerHTML = this.responseText;
+              if(this.responseText=='true'){
+                document.getElementById("reset-noti").innerHTML="CARS RESET SUCCESSFULLY";
+                document.getElementById("reset-noti").style.color='green';
+              }
+            else{
+              document.getElementById("reset-noti").innerHTML="THERE IS A CAR TRY ENTER OR EXIT";
+              document.getElementById("reset-noti").style.color='red';
+            }
+           
+          }  
+         }
+      
+        
         xhttp.open("PUT", "BUTTON_1", false);
         xhttp.send();
     }
@@ -331,7 +348,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         xmldoc = xmlResponse.getElementsByTagName("B0"); //bits for A0
         message = xmldoc[0].firstChild.nodeValue;
 
-        if (message > 2048) {
+        if (message > 10) {
             color = "#aa0000";
         }
         else {
@@ -343,19 +360,40 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         document.getElementById("b0").style.width = (barwidth + "%");
         // if you want to use global color set above in <style> section
         // other wise uncomment and let the value dictate the color
-        //document.getElementById("b0").style.backgroundColor=color;
+        document.getElementById("b0").style.backgroundColor=color;
         //document.getElementById("b0").style.borderRadius="5px";
 
         
         // A1
         xmldoc = xmlResponse.getElementsByTagName("B1");
         message = xmldoc[0].firstChild.nodeValue;
-      
+          if (message > 100) {
+            color = "#aa0000";
+        }
+        else {
+            color = "#0000aa";
+        }
+
         document.getElementById("b1").innerHTML = message;
         width = message / 40.95;
         //document.getElementById("b1").style.width = (width + "%");
         document.getElementById("b1").style.backgroundColor = color;
         //document.getElementById("b1").style.borderRadius="5px";
+
+        
+          xmldoc = xmlResponse.getElementsByTagName("B2");
+        message = xmldoc[0].firstChild.nodeValue;
+          if (message > 100) {
+            color = "#aa0000";
+        }
+        else {
+            color = "#0000aa";
+        }
+
+        document.getElementById("b2").innerHTML = message;
+        width = message / 40.95;
+        //document.getElementById("b1").style.width = (width + "%");
+        document.getElementById("b2").style.backgroundColor = color;
 
         
         xmldoc = xmlResponse.getElementsByTagName("LED");
@@ -368,7 +406,8 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
             document.getElementById("btn0").innerHTML = "Turn OFF";
         }
 
-        
+
+
     }
 
     // general processing code for the web page to ask for an XML steam
