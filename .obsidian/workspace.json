@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "README.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": false
               }
             }
@@ -148,8 +148,10 @@
   },
   "active": "885005b0615a9e8f",
   "lastOpenFiles": [
-    "block.png",
+    "server-shot.png",
     "README.md",
+    "server-shot.png.part",
+    "block.png",
     "Circuit Design App for Makers- circuito.io.html",
     "Circuit Design App for Makers- circuito.io_files/ykaggtuuezufipl2togh.png",
     "Circuit Design App for Makers- circuito.io_files/x-da8d2cc51c4426cc3ea5a20273576343cfa3a717812fa7182499685b95.svg",
@@ -168,7 +170,6 @@
     "Circuit Design App for Makers- circuito.io_files/css_005.css",
     "Circuit Design App for Makers- circuito.io_files/css_004.css",
     "Circuit Design App for Makers- circuito.io_files/css_003.css",
-    "Circuit Design App for Makers- circuito.io_files/css_002.css",
     "Block-Diagram.png.md"
   ]
 }
