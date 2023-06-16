@@ -226,6 +226,8 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         <br>
         <div class="bodytext"> System Status:</div>
         <button type="button" class="btn" id="btn0" onclick="ButtonPress0()">Toggle</button>
+                <p id="status-noti" ></p>
+
         </div>
         <br>
         <div class="bodytext">Reset Cars Number:</div>
@@ -269,14 +271,26 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         // we don't need this
         // remember that if you want immediate processing feedbac you must send it
         // in the ESP handling function and here
-        /*
-        xhttp.onreadystatechange = function() {
+       xhttp.onreadystatechange = function() {          
           if (this.readyState == 4 && this.status == 200) {
-            message = this.responseText;
-            // update some HTML data
-          }
+              document.getElementById("status-noti").innerHTML = this.responseText;
+              if(this.responseText=='on' || this.responseText=='off'){
+                document.getElementById("status-noti").innerHTML="SYSTEM STATUS TOGGLE SUCCESSFULLY";
+                document.getElementById("status-noti").style.color='green';
+                   if (this.responseText == 'on') {
+            document.getElementById("btn0").innerHTML = "Turn ON";
         }
-        */
+        else {
+            document.getElementById("btn0").innerHTML = "Turn OFF";
+        }
+              }
+            else{
+              document.getElementById("status-noti").innerHTML="THERE IS A CAR TRY ENTER OR EXIT";
+              document.getElementById("status-noti").style.color='red';
+            }
+           
+          }  
+         }
 
         xhttp.open("PUT", "BUTTON_0", false);
         xhttp.send();
@@ -399,12 +413,7 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
         xmldoc = xmlResponse.getElementsByTagName("LED");
         message = xmldoc[0].firstChild.nodeValue;
 
-        if (message == 0) {
-            document.getElementById("btn0").innerHTML = "Turn ON";
-        }
-        else {
-            document.getElementById("btn0").innerHTML = "Turn OFF";
-        }
+     
 
 
 
