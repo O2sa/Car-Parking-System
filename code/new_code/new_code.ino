@@ -1,7 +1,6 @@
 
 #include <ESP32Servo.h>
 #include "webpage.h"
-#include "server.h"
 #include <WiFi.h>
 #include <WebServer.h>
 
@@ -68,12 +67,45 @@ char buf[32];
 // create a server
 WebServer server(80);
 
+
+
+
+
+
+//================================================================================//
+SemaphoreHandle_t xMutex = NULL;  // Create a mutex object
+int counter = 0;  // A shared variable
+//================================================================================//
+// the setup function runs once when you press reset or power the board
 void setup() {
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode (LED_BUILTIN, OUTPUT);
+  Serial.begin (115200);
+  xMutex = xSemaphoreCreateMutex();  // crete a mutex object
+  xTaskCreatePinnedToCore (
+    task1,     // Function to implement the task
+    "task1",   // Name of the task
+    2024,      // Stack size in words
+    NULL,      // Task input parameter
+    10,         // Priority of the task
+    NULL,      // Task handle.
+    0          // Core where the task should run
+  );
+  xTaskCreatePinnedToCore (
+    task2,     // Function to implement the task
+    "task2",   // Name of the task
+    2024,      // Stack size in words
+    NULL,      // Task input parameter
+    10,         // Priority of the task
+    NULL,      // Task handle.
+    0          // Core where the task should run
+  );
+
 
   preferences.begin("variables", false);
 
   cars_num = preferences.getInt("cars_num", 0);
-  
+
   entry_gate_servo.setPeriodHertz(50);    // standard 50 hz servo
   entry_gate_servo.attach(ENTRY_SERVO_PIN, 500, 2400); // attaches the servo on pin 18 to the servo object
 
@@ -81,7 +113,6 @@ void setup() {
   exit_gate_servo.attach(EXIT_SERVO_PIN, 500, 2400); // attaches the servo on pin 18 to the servo object
 
   // begin serial port
-  Serial.begin (9600);
   pinMode(PIN_LED, OUTPUT);
 
   // turn off led
@@ -99,6 +130,10 @@ void setup() {
   // disable watch dog timer 0
   disableCore0WDT();
 
+  entry_gate_servo.write(0);
+  exit_gate_servo.write(0);
+
+  
 
   // setup the server
   Serial.println("starting server");
@@ -130,92 +165,119 @@ void setup() {
   // finally begin the server
   server.begin();
 
-  //  entry_gate_servo.write(0);
-  //  exit_gate_servo.write(0);
-
-
-
 }
-
+//================================================================================//
+// the loop function runs over and over again forever
 void loop() {
   if (system_status)
-  {
-    entry_gate_distance = get_distance(ULTRA_ONE_TRIG_PIN, ULTRA_ONE_ECHO_PIN);
+{
+  entry_gate_distance = get_distance(ULTRA_ONE_TRIG_PIN, ULTRA_ONE_ECHO_PIN);
 
-    if (entry_gate_distance <= 10 && cars_num < 10 && !entry_open) {
-      cars_num++;
-      preferences.putInt("cars_num", cars_num);
-      entry_open_time = millis();
-      entry_moving_time = millis();
-      entry_open = true;
-    }
+  if (entry_gate_distance <= 10 && cars_num < 10 && !entry_open) {
+    cars_num++;
+    preferences.putInt("cars_num", cars_num);
+    xSemaphoreGive (xMutex);  // release the mutex
+    entry_moving_time = millis();
+    entry_open = true;
+  }
 
-    exit_gate_distance = get_distance(ULTRA_TWO_TRIG_PIN, ULTRA_TWO_ECHO_PIN);
-    if (exit_gate_distance <= 10 && cars_num >= 1 && !exit_open) {
-      cars_num--;
-      preferences.putInt("cars_num", cars_num);
-      exit_open_time = millis();
-      exit_moving_time = millis();
-      exit_open = true;
-    }
+  exit_gate_distance = get_distance(ULTRA_TWO_TRIG_PIN, ULTRA_TWO_ECHO_PIN);
+
+  if (exit_gate_distance <= 10 && cars_num >= 1 && !exit_open) {
+    cars_num--;
+    preferences.putInt("cars_num", cars_num);
+    xSemaphoreGive (xMutex);  // release the mutex
+
+    exit_open_time = millis();
+    exit_moving_time = millis();
+    exit_open = true;
+  }
+
+  Serial.print("entry_gate_distance:");
+  Serial.println(entry_gate_distance);
 
 
+  Serial.print("cars number:");
+  Serial.println(cars_num);
+  Serial.print("exit_gate_distance:");
 
+  Serial.println(exit_gate_distance);
+  //
+}
+    server.handleClient();
 
+}
+//================================================================================//
+// this task will periodically lock the mutex, increment the counter by 1 and unlock the mutex
+void task1 (void *pvParameters) {
+  while (1) {
+    Serial.print("entry_open:");
+
+    Serial.println(entry_open);
     //Entry Gate Moving control
     //check if the gate in open state to open it gradully
-    if (entry_open
-        //      && (entry_gate_distance <= 10)
-        && entry_servo_pos < 90) {
-      if (millis() - entry_moving_time >= moveTime) {
+    if (entry_open) {
+      entry_open_time = millis();
+      while (entry_servo_pos < 90) {
         entry_servo_pos = entry_servo_pos +  2;
+        delay(40);
         entry_gate_servo.write(entry_servo_pos);
+
       }
-      entry_moving_time = millis();
-    }
-    // check to close the entry gate if it is open and time done
-    if (millis() - entry_open_time >= 7000) {
+      delay(7000);
       if (!(entry_gate_distance <= 10) && entry_servo_pos > 0) {
         entry_open = false;
-        if (millis() - entry_moving_time >= moveTime) {
+        while (entry_servo_pos > 0) {
           entry_servo_pos = entry_servo_pos - 2;
+          delay(40);
           entry_gate_servo.write(entry_servo_pos);
         }
-        entry_moving_time = millis();
       }
+
     }
 
-    Serial.print("entry_open: ");
-    Serial.println(entry_open);
-    Serial.print("exit_open: ");
-    Serial.println(entry_open);
+
+  }
+
+}
+//================================================================================//
+// this task will periodically lock the mutex, increment the counter by 1000 and unlock the mutex
+void task2 (void *pvParameters) {
+  while (1) {
+
 
 
     //Exit Gate Moving control
     //check if the gate in open state to open it gradully
-    if (exit_open
-        //      && (entry_gate_distance <= 10)
-        && exit_servo_pos < 90) {
-      if (millis() - exit_moving_time >= moveTime) {
+    Serial.print("exit_open:");
+
+    Serial.println(exit_open);
+    if (exit_open) {
+      exit_open_time = millis();
+      while (exit_servo_pos < 90) {
         exit_servo_pos = exit_servo_pos +  2;
+        delay(40);
         exit_gate_servo.write(exit_servo_pos);
+
       }
-      exit_moving_time = millis();
-    }
-    // check to close the entry gate if it is open and time done
-    if (millis() - exit_open_time >= 7000) {
+      delay(7000);
       if (!(exit_gate_distance <= 10) && exit_servo_pos > 0) {
         exit_open = false;
-        if (millis() - entry_moving_time >= moveTime) {
+        while (exit_servo_pos > 0) {
           exit_servo_pos = exit_servo_pos - 2;
+          delay(40);
           exit_gate_servo.write(exit_servo_pos);
         }
-        exit_moving_time = millis();
       }
+
     }
+
+
+    
   }
-  server.handleClient();
+
 }
+
 
 
 
@@ -384,7 +446,6 @@ void printWifiStatus() {
   Serial.println(ip);
 }
 
-
 int get_distance(int trig_pin, int echo_pin) {
   digitalWrite(trig_pin, LOW);
 
@@ -396,3 +457,4 @@ int get_distance(int trig_pin, int echo_pin) {
   return (pulseIn(echo_pin, HIGH)) * 0.017;
 
 }
+//================================================================================//
