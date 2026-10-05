@@ -135,10 +135,6 @@ An online simulation of this project was created with **Circuito.io**. You can f
 *   **OLED Display:** Add a small screen to show spot availability directly on the unit.
 *   **Improved Detection Logic:** Implement filtering or use two sensors per gate to better distinguish vehicles.
 
-## 📚 References
-
-1.  Jo, Y., & Jung, I. (2014). Analysis of vehicle detection with WSN-based ultrasonic sensors. _Sensors_, _14_(8), 14050–14069. [Link to paper]
-2.  Stiawan, R., Kusumadjati, A., Aminah, N. S., Djamal, M., & Viridi, S. (2019). An ultrasonic sensor system for vehicle detection application. _Journal of Physics: Conference Series_, _1204_, 012017. [Link to paper]
 
 ## 🤝 Contributing
 
